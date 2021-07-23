@@ -1,19 +1,81 @@
-from time import sleep
 import signal
+from time import sleep
+from kafka import KafkaConsumer
+from json import loads
+import threading
+from queue import Queue, Empty
 
-items = []
+items = Queue()
 
-def run_operation():
-    items.append("a")
-    print(items)
 
-def exit_print(*args, **kwargs):
-    print('exiting. running one last operation')
-    run_operation()
-    exit(0)
+class GracefulKiller:
+    def __init__(self, consumer):
+        self.consumer = consumer
+        self.kill_now = False
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
 
-signal.signal(signal.SIGTERM, exit_print)
+    def exit_gracefully(self, *args):
+        print("received kill signal")
+        consumer.stop()
+        persist_messages()
+        exit(0)
 
-while True:
-    run_operation()
-    sleep(2)
+
+class Consumer(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.stop_event = threading.Event()
+
+    def stop(self):
+        print("stopping consumer thread")
+        self.stop_event.set()
+
+    def run(self):
+        consumer = KafkaConsumer(
+            "twitch_chat",
+            bootstrap_servers=["localhost:9092"],
+            auto_offset_reset="earliest",
+            enable_auto_commit=True,
+            group_id="my-group",
+        )
+
+        while not self.stop_event.is_set():
+            for message in consumer:
+                self.process_message(message.value)
+                if self.stop_event.is_set():
+                    break
+
+        consumer.close()
+
+    def process_message(self, message):
+        items.put(message)
+
+
+def persist_messages():
+    print("PERSISTING MESSAGES")
+    n = -1
+
+    with open("output.txt", "a+") as f:
+        try:
+            while True:
+                n += 1
+                i = items.get_nowait()
+                f.write(f"{i}\n")
+
+        except Empty:
+            pass
+
+    print(n)
+
+
+if __name__ == "__main__":
+    consumer = Consumer()
+    consumer.daemon = True
+    consumer.start()
+
+    killer = GracefulKiller(consumer)
+
+    while True:
+        persist_messages()
+        sleep(1)
