@@ -1,7 +1,6 @@
 import signal
 from time import sleep
 from kafka import KafkaConsumer
-from json import loads
 import threading
 from queue import Queue, Empty
 
@@ -49,6 +48,8 @@ class Consumer(threading.Thread):
         consumer.close()
 
     def process_message(self, message):
+        print(message)
+        sleep(5)
         items.put(message)
 
 

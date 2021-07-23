@@ -1,7 +1,6 @@
 import signal
 from time import sleep
 from kafka import KafkaConsumer
-from json import loads
 
 
 class GracefulKiller:
