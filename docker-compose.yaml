@@ -1,0 +1,38 @@
+version: '2.2'
+services:
+  api:
+    build:
+      context: ./producer
+    ports:
+      - 8081:8080
+    depends_on:
+      - redpanda
+    command: 'producer'
+  worker:
+    build:
+      context: ./consumer
+    depends_on:
+      - redpanda
+    command: 'python consumer/batching-graceful-shutdown.py'
+  redpanda:
+    command:
+    - redpanda
+    - start
+    - --smp
+    - '1'
+    - --reserve-memory
+    - 0M
+    - --overprovisioned
+    - --node-id
+    - '0'
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    # NOTE: Please use the latest version here!
+    image: docker.vectorized.io/vectorized/redpanda:v21.4.13
+    container_name: redpanda-1
+    ports:
+    - 9092:9092
+    - 29092:29092
+
