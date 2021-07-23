@@ -21,6 +21,7 @@ def process_message(message):
 
 
 if __name__ == "__main__":
+    print("starting consumer app")
     killer = GracefulKiller()
     consumer = KafkaConsumer(
         "twitch_chat",

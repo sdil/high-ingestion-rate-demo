@@ -32,3 +32,12 @@ Insert the data into a buffer queue, then at every interval perform a batch oper
 
 **Important Note**: The data received must be inserted into [Queue](https://docs.python.org/3/library/queue.html) and **NOT** list. This is because python queue has `get()` and `get_nowait()` functions which are suitable for multithreaded environment. If we're using list instead for buffer store, we might losing some data as another thread is manipulating the data.
 
+## How to Run
+
+Prerequisite:
+
+- Has Go, Python 3 and Docker installed locally
+
+1. Open terminal 1 and run `make producer`
+2. Open terminal 2 and run `make consumer-batch` or `make consumer-loop`
+3. Open terminal 3 and run `make load-test-100`

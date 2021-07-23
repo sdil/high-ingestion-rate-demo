@@ -10,7 +10,6 @@ items = Queue()
 class GracefulKiller:
     def __init__(self, consumer):
         self.consumer = consumer
-        self.kill_now = False
         signal.signal(signal.SIGINT, self.exit_gracefully)
         signal.signal(signal.SIGTERM, self.exit_gracefully)
 
@@ -48,8 +47,6 @@ class Consumer(threading.Thread):
         consumer.close()
 
     def process_message(self, message):
-        print(message)
-        sleep(5)
         items.put(message)
 
 
@@ -71,6 +68,8 @@ def persist_messages():
 
 
 if __name__ == "__main__":
+    print("Starting batching worker")
+
     consumer = Consumer()
     consumer.daemon = True
     consumer.start()

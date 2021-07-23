@@ -52,6 +52,6 @@ func main() {
 
 	// Run the web server.
 	fmt.Println("start producer-api ... !!")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
