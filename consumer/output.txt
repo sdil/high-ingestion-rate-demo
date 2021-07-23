@@ -1,2 +1,0 @@
-b'{"message":"asdf"}'
-b'{"message":"asdf"}'

@@ -8,6 +8,10 @@ This demo is inspired by an article by Papercups.io on [how Genserver works base
 
 ![Elixir Architecture](elixir-architecture.png)
 
+## Goals
+
+### Non-Goals
+
 ## Types of Consumers
 
 ### Continuous Worker
